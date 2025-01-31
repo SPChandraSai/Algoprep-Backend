@@ -1,78 +1,99 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
 </head>
+
 <body>
     <button id="get">GET Request</button>
     <button id="post">POST Request</button>
     <button id="patch">PATCH Request</button>
     <button id="delete">DELETE Request</button>
-    
+    <button id="getAll">Get All Posts</button>
+
     <script>
-        const getbtn=document.querySelector("#get");
-        const postbtn=document.querySelector("#post");
-        const patchbtn=document.querySelector("#patch");
-        const deletebtn=document.querySelector("#delete");
-        
-        // get a post from server
-        getbtn.addEventListener("click", async function(){
+        const getbtn = document.querySelector("#get");
+        const postbtn = document.querySelector("#post");
+        const updatebtn = document.querySelector("#patch");
+        const deletebtn = document.querySelector("#delete");
+        const getAllbtn = document.querySelector("#getAll");
+
+        //get All posts
+        getAllbtn.addEventListener("click", async function () {
             //you want to get something from a server -> get request
-            const resp = await fetch('https://dummyjson.com/posts/1',{
-                method:"GET"
+            const resp = await fetch('https://dummyjson.com/posts', {
+                method: "GET"
             })
-            const respdata=await resp.json();
+            const respdata = await resp.json();
+            // what is the final status of response
+            console.log("status", resp.status);
+            console.log("body", respdata);
+        })
+
+        // get a post from server
+        getbtn.addEventListener("click", async function () {
+            //you want to get something from a server -> get request
+            const resp = await fetch('https://dummyjson.com/posts/1', {
+                method: "GET"
+            })
+            const respdata = await resp.json();
             // what is the final status of response
             console.log("status", resp.status);
             console.log("body", respdata);
         })
 
         //add a post to server
-        postbtn.addEventListener("click", async function(){
+        postbtn.addEventListener("click", async function () {
             //you want to get something from a server -> get request
-            const resp = await fetch('https://dummyjson.com/posts/add',{
-                method:"POST",
+            const resp = await fetch('https://dummyjson.com/posts/add', {
+                method: "POST",
                 body: JSON.stringify({
                     title: 'I am in love with someone',
                     userId: 5,
                 }),
-                headers:{'Content-Type': 'application/json'},
+                headers: { 'Content-Type': 'application/json' },
             })
-            const respdata=await resp.json();
+            const respdata = await resp.json();
             // what is the final status of response
             console.log("status", resp.status);
             console.log("body", respdata);
         })
 
-        //updating title of the product
-        patchbtn.addEventListener("click", async function(){
+        //updating something on the server
+        updatebtn.addEventListener("click", async function () {
             //you want to get something from a server -> get request
-            const resp = await fetch('https://dummyjson.com/products/1',{
-                method:"PUT",
+            const resp = await fetch('https://dummyjson.com/products/1', {
+                method: "PATCH",
                 body: JSON.stringify({
                     title: 'iPhone galaxy +1'
                 }),
-                headers:{'Content-Type': 'application/json'},
+                headers: { 'Content-Type': 'application/json' },
             })
-            const respdata=await resp.json();
+            const respdata = await resp.json();
             // what is the final status of response
             console.log("status", resp.status);
             console.log("body", respdata);
         })
 
         // delete a post from server
-        deletebtn.addEventListener("click", async function(){
+        deletebtn.addEventListener("click", async function () {
             //you want to get something from a server -> get request
-            const resp = await fetch('https://dummyjson.com/posts/1',{
-                method:"DELETE",
+            const resp = await fetch('https://dummyjson.com/posts/1', {
+                method: "DELETE",
+                body: JSON.stringify({
+                    title: 'iPhone galaxy +1'
+                }),
+                headers: { 'Content-Type': 'application/json' },
             })
-            const respdata=await resp.json();
+            const respdata = await resp.json();
             // what is the final status of response
             console.log("status", resp.status);
             console.log("body", respdata);
         })
     </script>
 </body>
+
 </html>
