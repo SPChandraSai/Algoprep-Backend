@@ -1,8 +1,33 @@
-const express=require("express");
-const app=express();
+const express = require("express");
+const app = express();
+
+//req->request & res->response
+function getHandler(req, res) {
+    console.log("Received get Request");
+    const postData = {
+        "id": 1,
+        "title": "His mother had always taught him",
+        "body": "His mother had always taught him not to ever think of himself as better than others. He'd tried to live by this motto. He never looked down on those who were less fortunate or who had less money than him. But the stupidity of the group of people he was talking to made him change his mind.",
+        "tags": [
+            "history",
+            "american",
+            "crime"
+        ],
+        "reactions": {
+            "likes": 192,
+            "dislikes": 25
+        },
+        "views": 305,
+        "userId": 121
+    }
+    res.status(200).json(postData);
+}
+
+//get request
+app.get("/post", getHandler);
 
 //server start
-app.listen(3000, function(){
+app.listen(3000, function () {
     console.log("server is running at port 3000");
 })
 
