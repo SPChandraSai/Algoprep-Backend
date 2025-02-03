@@ -65,7 +65,7 @@
         //updating something on the server
         updatebtn.addEventListener("click", async function () {
             //you want to get something from a server -> get request
-            const resp = await fetch('https://dummyjson.com/products/1', {
+            const resp = await fetch('https://dummyjson.com/products/5', {
                 method: "PATCH",
                 body: JSON.stringify({
                     title: 'iPhone galaxy +1'
@@ -81,10 +81,11 @@
         // delete a post from server
         deletebtn.addEventListener("click", async function () {
             //you want to get something from a server -> get request
-            const resp = await fetch('https://dummyjson.com/posts/1', {
+            const resp = await fetch(`https://dummyjson.com/posts/5`, {
                 method: "DELETE",
                 body: JSON.stringify({
-                    title: 'iPhone galaxy +1'
+                    title: 'iPhone galaxy +1',
+                    userId: 5
                 }),
                 headers: { 'Content-Type': 'application/json' },
             })
