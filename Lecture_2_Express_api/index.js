@@ -1,6 +1,7 @@
 const express = require("express");
 const fs = require("fs");
 const app = express();
+exports.app = app;
 
 console.log("Before");
 const content = fs.readFileSync("posts.json", "utf-8");
@@ -18,6 +19,7 @@ function getAllPostsHandler(req, res) {
         })
     }
 }
+exports.getAllPostsHandler = getAllPostsHandler;
 
 function getPostById(req, res) {
     try {
@@ -41,6 +43,7 @@ function getPostById(req, res) {
         })
     }
 }
+exports.getPostById = getPostById;
 
 function createPost(req, res) {
     try {
@@ -57,6 +60,7 @@ function createPost(req, res) {
         })
     }
 }
+exports.createPost = createPost;
 
 function updatePost(req, res) {
     try {
@@ -73,6 +77,7 @@ function updatePost(req, res) {
         })
     }
 }
+exports.updatePost = updatePost;
 
 function deletePost(req, res) {
     try {
@@ -83,7 +88,6 @@ function deletePost(req, res) {
             if (postsArr[i].id == postid) {
                 return res.status(200).json({
                     post: postsArr.splice(i, 1)
-                    // post: postsArr[i]
                 })
             }
         }
@@ -97,6 +101,7 @@ function deletePost(req, res) {
         })
     }
 }
+exports.deletePost = deletePost;
 
 app.use(express.json());
 //post a request
