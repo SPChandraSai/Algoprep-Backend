@@ -1,26 +1,44 @@
-const express=require("express");
+const express = require("express");
 // const { app, createPost, getAllPostsHandler, getPostById, updatePost, deletePost } = require("../Lecture_2_Express_api");
-const app=express();
+const app = express();
 
 // -> /posts, post -> createPost
-function beforeFn(req, res, next){
+function beforeFn(req, res, next) {
     console.log("Before fn called");
-    console.log("req.body", req.body);
-    next();
+    // console.log("req.body", req.body);
+    const length = Object.keys(req.body).length;
+    if (length > 0 && req.body.name && req.body.userId) {
+        const fullNameArr = req.body.name.split(" ");
+        req.body.firstName = fullNameArr[0];
+        req.body.lastName = fullNameArr[1];
+        next();
+    }
+    else {
+        res.status(400).json({
+            message: "bad request"
+        })
+    }
 }
 
-function AfterFn(req, res){
+function AfterFn(req, res) {
     console.log("After fn called");
     console.log("req.body", req.body);
     res.status(200).json({
-        message:"response send ",
+        message: "response send ",
         body: req.body
     })
 }
 
+app.post(express.json());
+app.patch(express.json());
 app.post("/posts", beforeFn);
-app.use(express.json());
 app.post("/posts", AfterFn);
+
+app.use(function (req, res) {
+    res.status(404).json({
+        message: "404 page not found"
+    })
+})
 
 // app.post("/", function(req, res){
 //     console.log("Hello");
@@ -39,6 +57,6 @@ app.post("/posts", AfterFn);
 //delete a post
 // app.delete("/posts/:postId", deletePost)
 
-app.listen(3000, function(){
+app.listen(3000, function () {
     console.log("Server running at port 3000");
 })
