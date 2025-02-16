@@ -182,6 +182,12 @@ app.get("/user/:id", getUser);
 
 app.delete("/user/:id", deleteUser);
 
+//HW for the class
+app.post("/login", loginHandler);
+app.post("/signup", signupHandler);
+app.use(protectedRoute);
+app.get("/profile", profileHandler);
+
 app.listen(3000, function () {
     console.log("server started on port 3000")
 })
