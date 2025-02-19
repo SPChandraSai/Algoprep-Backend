@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const express = require("express");
 const dotenv = require("dotenv");
 const app = express();
+const cookieParser = require("cookie-parser");
 dotenv.config();
 
 /******************db connection****************/
@@ -19,17 +20,16 @@ const { createUser, getAllUser, getUser, deleteUser } = require("./userControlle
 const UserModel = require("./UserModel");
 
 app.use(express.json());
-
-app.post("/user", createUser);
-
-app.get("/user", getAllUser);
-
-app.get("/user/:id", getUser);
-
-app.delete("/user/:id", deleteUser);
-
+app.use(cookieParser());
 
 /*****************auth methods and routes****************/
+const jwt = require("jsonwebtoken");
+const util = require("util");
+const promisify = util.promisify;
+const promisdiedJWTsign = promisify(jwt.sign);
+const promisdiedJWTverify = promisify(jwt.verify);
+
+//handler functions
 async function signupHandler(req, res) {
     try {
         const userObject = req.body;
@@ -66,11 +66,6 @@ async function signupHandler(req, res) {
     }
 }
 
-const jwt = require("jsonwebtoken");
-const util = require("util");
-const promisify = util.promisify;
-const promisdiedJWTsign = promisify(jwt.sign);
-
 async function loginHandler(req, res) {
     try {
         const { email, password } = req.body;
@@ -90,7 +85,7 @@ async function loginHandler(req, res) {
         }
 
         //token create
-        const authToken = await promisdiedJWTsign({ id:user["_id"]}, process.env.JWT_SECRET_KEY);
+        const authToken = await promisdiedJWTsign({ id: user["_id"] }, process.env.JWT_SECRET_KEY);
         //token -> cookies
         res.cookie("jwt", authToken, {
             maxAge: 1000 * 60 * 60 * 24,
@@ -99,7 +94,7 @@ async function loginHandler(req, res) {
         //res send
         res.status(200).json({
             message: "login successfully",
-            status:"success",
+            status: "success",
             user: user
         })
     }
@@ -111,12 +106,109 @@ async function loginHandler(req, res) {
         })
     }
 }
-//HW for the class
+
+async function protectedRouteMiddleware(req, res, next) {
+    try {
+        //get tokens from cookies
+        const token = req.cookies.jwt;
+        if (!token) {
+            return res.status(401).json({
+                message: "unauthorized access",
+                status: "failure"
+            })
+        }
+        //token verify
+        const decryptedToken = await promisdiedJWTverify(token, process.env.JWT_SECRET_KEY);
+        //token identifier(token data)
+        req.id = decryptedToken.id;
+        next();
+    }
+    catch (err) {
+        console.log("err", err);
+        res.status(500).json({
+            message: "internal server error",
+            status: "failure"
+        })
+    }
+}
+
+async function isAdminMiddleWare(req, res, next) {
+    const id = req.id;
+    const user = await UserModel.findById(id);
+    if (user.role !== "admin") {
+        return res.status(403).json({
+            message: "you are not an admin",
+            status: "failure"
+        })
+    }
+    else {
+        next();
+    }
+}
+
+async function profileHandler(req, res) {
+    try {
+        const userId = req.id;
+        const user = await UserModel.findById(userId);
+        if (!user) {
+            return res.status(404).json({
+                message: "user not found",
+                status: "failure"
+            })
+        }
+        res.json({
+            message: "profile worked",
+            status: "success",
+            user: user
+        })
+    }
+    catch (err) {
+        console.log("err", err);
+        res.status(500).json({
+            message: err.message,
+            status: "failure"
+        })
+    }
+}
+
+async function logoutHandler(req, res) {
+    try {
+        res.clearCookie('jwt', { path: "/" });
+        res.json({
+            message: "logout successfully",
+            status: "success"
+        })
+    }
+    catch (err) {
+        res.status(500).jeon({
+            message: err.message,
+            status: "failure"
+        })
+    }
+}
+
 app.post("/login", loginHandler);
 app.post("/signup", signupHandler);
-// app.use(protectedRoute);
-// app.get("/profile", profileHandler);
+app.get("/logout", logoutHandler);
+// app.use(protectedRouteMiddleware);
+app.get("/profile", protectedRouteMiddleware, profileHandler);
+
+//user handler functions
+app.post("/user", createUser);
+app.get("/user", protectedRouteMiddleware, isAdminMiddleWare, getAllUser);
+app.get("/user/:id", getUser);
+app.delete("/user/:id", protectedRouteMiddleware, deleteUser);
 
 app.listen(3000, function () {
     console.log("server started on port 3000")
 })
+
+
+
+/***
+ * given a valid of roles -> verify that the current user is allowed to access a route or not
+ * eg: getAllusers -> [admin, moderator]
+ * eg: deleteUser -> [admin, moderator]
+ * eg: allmovies -> [admin, moderator, fee curator]
+ * 
+*/
