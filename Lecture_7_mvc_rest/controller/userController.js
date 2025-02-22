@@ -1,6 +1,6 @@
 /******************handler function -> users*****************/
 
-const UserModel=require("./userModel");
+const UserModel=require("../model/userModel");
 const createUser = async function (req, res) {
     try {
         const userObject = req.body;
